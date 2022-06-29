@@ -8,7 +8,7 @@
 #' nsim replicates, and counting the total number of opportunities for
 #' spells over multiple turns.
 #' @param decklist data frame with columns, "type", "cost",
-#' and optionally number, describing deck to be analysed
+#' and optionally "number", describing deck to be analysed
 #' @param turns number of turns to analyse, default 7
 #' @param play is the player playing first (skip first draw) or second (draw as usual), default TRUE
 #' @param handsize number of cards in starting hand, default 7
