@@ -1,0 +1,16 @@
+Package: curvefishing
+Title: Analyse how many cards can be played by Goldfishing a Deck
+Version: 0.1
+Author: Lacerto
+Maintainer: <chrissjcampbell@googlemail.com>
+Description: Simulation based estimation of mana curve for Magic: the Gathering decks.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+Imports: stats, 
+    graphics, 
+    stringr,
+    dplyr
+Suggests: 
+    testthat (>= 2.1.0)
