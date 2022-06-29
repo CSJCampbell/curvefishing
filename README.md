@@ -44,3 +44,6 @@ To estimate the fish metric for a deck, the `go_fish` function will expand deckl
     #  14
     plot(f1)
 
+![Turn 7 curve fish for the rock](/fish_the_rock.png?raw=true)
+
+Note that spells are not played, so no costs can be paid by spells, and no additional cards drawn.  
