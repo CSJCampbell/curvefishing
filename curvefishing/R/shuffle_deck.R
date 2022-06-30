@@ -21,11 +21,14 @@ shuffle_deck <- function(decklist) {
                 decklist$type[i], decklist$cost[i]), each = decklist$number[i])
             pos <- pos + decklist$number[i]
         }
+        deck <- as.data.frame(deck, stringsAsFactors = FALSE)
+        decklist$number <- NULL
+        deck <- full_join(x = deck, y = decklist, by = c("type", "cost"))
     } else {
         number_of_cards <- nrow(decklist)
         deck <- decklist
     }
-    as.data.frame(deck[order(runif(number_of_cards)), ], stringsAsFactors = FALSE)
+    deck[order(runif(number_of_cards)), ]
 }
 
 #' @describeIn shuffle_deck A deck must have columns named type and cost.

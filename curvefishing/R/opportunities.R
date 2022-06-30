@@ -4,7 +4,7 @@
 #' @param deck data frame with columns, "type", "cost",
 #' and optionally number, describing deck to be analysed
 #' @return A deck data.frame with columns named type and cost.
-#' @importFrom dplyr summarise filter across all_of
+#' @importFrom dplyr summarise filter across all_of full_join
 #' @export
 #' @examples
 #' d1 <- shuffle_deck(sligh)

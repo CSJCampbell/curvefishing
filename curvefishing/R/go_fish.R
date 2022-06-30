@@ -16,7 +16,7 @@
 #' @return fish single numeric with bootstrap simulations as attribute 'fishing'
 #' @export
 #' @examples
-#' f1 <- go_fish(decklist = sligh, nsim = 20)
+#' f1 <- go_fish(decklist = sligh, nsim = 10)
 #' f1
 #' plot(f1)
 
@@ -32,7 +32,7 @@ go_fish <- function(decklist, turns = 7L, play = TRUE, handsize = 7L, nsim = 100
 
 #' @describeIn go_fish Returns an object of class fish.
 #' @param x An object
-#' @importFrom stats median
+#' @importFrom stats median quantile
 #' @export
 #' @examples
 #' fish(1:3)
@@ -45,18 +45,22 @@ fish <- function(x, turns = 7L) {
     return(fish)
 }
 
-#' @export
-
 print.fish <- function(x, ...) {
     print(data.frame("><>" = c(x), row.names = "", check.names = FALSE))
     invisible(x)
 }
 
+quantile.fish <- function(x, na.rm = TRUE, ...) {
+    quantile(x = attr(x = x, which = "fishing"), na.rm = na.rm, ...)
+}
+
+mean.fish <- function(x, na.rm = TRUE, ...) {
+    mean(x = attr(x = x, which = "fishing"), na.rm = na.rm, ...)
+}
 
 #' @noRd
 #' @describeIn plot The \code{plot} method
 #' creates a \pkg{graphics} plot for the fish class.
-#' @export
 #' @importFrom graphics plot points text
 #' @method plot fish
 #' @examples
