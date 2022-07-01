@@ -33,7 +33,7 @@ To estimate the fish metric for a deck, the `go_fish` function will expand deckl
       2,       "Vampiric Tutor", "spell",   "B", FALSE,
       1,       "Tranquil Grove", "spell",  "1G", FALSE,
       3,          "Rapid Decay", "spell",  "1B", FALSE,
-      2,   "Diabolic Servitude", "spell", "3BB", FALSE,
+      2,   "Diabolic Servitude", "spell",  "3B", FALSE,
       4,      "Treetop Village",  "land",   "G",  TRUE,
       2,            "Dust Bowl",  "land",   "1", FALSE,
       6,                "Swamp",  "land",   "B", FALSE,
