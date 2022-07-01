@@ -11,4 +11,14 @@ test_that("check opportunities", {
     d2 <- opportunities(d1)
     expect_equal(d2$opportunities, c(0, 0, 0, 0))
     expect_true(all(!d2$is_tapped))
+    d3 <- data.frame(
+        name = 1:20, cost = "R", type = c("spell", "land"),
+        turn = c(NA, 1, NA, 2, rep(NA, times = 16)),
+        cards_this_turn = rep(c(TRUE, FALSE), times = c(10, 10)),
+        stringsAsFactors = FALSE)
+    expect_equal(opportunities(deck = d3)$opportunities,
+        expected = c(1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+    d3$cost <- c("R", "G")
+    expect_equal(opportunities(deck = d3)$opportunities,
+        expected = rep(0L, times = 20))
 })

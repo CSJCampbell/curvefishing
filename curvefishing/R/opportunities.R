@@ -4,7 +4,7 @@
 #' @param deck data frame with columns, "type", "cost",
 #' and optionally number, describing deck to be analysed
 #' @return A deck data.frame with columns named type and cost.
-#' @importFrom dplyr summarise filter across all_of select slice n
+#' @importFrom dplyr filter select slice n
 #' @export
 #' @examples
 #' d1 <- shuffle_deck(sligh)
@@ -30,18 +30,15 @@ opportunities <- function(deck) {
     if (!"is_tapped" %in% colnames(deck)) {
         deck$is_tapped <- FALSE
     }
-    cols <- c("W", "U", "B", "R", "G")
     deck <- get_mana(deck = deck)
-    resource <- unlist(summarise(
-        filter(deck, !is.na(turn) & cards_this_turn & !is_tapped),
-        total = sum(mana_value, na.rm = TRUE),
-        across(all_of(casefold(cols, upper = FALSE)), sum)))
-    indx <- deck$cards_this_turn &
-        deck$type != "land" &
-        deck$mana_value <= resource["total"] &
-        has_resource(cost = deck$cost, resource = resource[-1])
+    rows <- deck[!is.na(deck$turn) & deck$cards_this_turn & !deck$is_tapped, ]
+    indx <- deck$cards_this_turn & deck$type != "land" & deck$mana_value <=
+        sum(rows$mana_value, na.rm = TRUE) & has_resource(
+            cost = deck$cost,
+            resource = c(sum(rows$w), sum(rows$u), sum(rows$b), sum(rows$r), sum(rows$g)))
     deck[indx, "opportunities"] <- deck[indx, "opportunities"] + 1L
-    deck[!is.na(deck$turn) & deck$cards_this_turn & deck$is_tapped, "is_tapped"] <- FALSE
+    deck[!is.na(deck$turn) & deck$cards_this_turn & deck$is_tapped,
+         "is_tapped"] <- FALSE
     return(deck)
 }
 
