@@ -13,7 +13,7 @@ shuffle_deck <- function(decklist) {
     stopifnot(is_deck(decklist))
     if (is_decklist(decklist)) {
         number_of_cards <- sum(decklist$number)
-        deck <- select(slice(decklist, rep(seq_len(n()), times = number)), -number)
+        deck <- as.data.frame(select(slice(decklist, rep(seq_len(n()), times = number)), -number))
     } else {
         number_of_cards <- nrow(decklist)
         deck <- decklist
