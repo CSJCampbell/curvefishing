@@ -22,9 +22,10 @@
 
 go_fish <- function(decklist, turns = 7L, play = TRUE, handsize = 7L, nsim = 100L) {
     fishing <- numeric(length = nsim)
+    deck <- shuffle_deck(decklist)
     for (fsh in seq_along(fishing)) {
-        deck <- goldfish(deck = shuffle_deck(decklist),
-                         turns = turns, play = play, handsize = handsize)
+        deck <- goldfish(deck = shuffle_deck(deck),
+            turns = turns, play = play, handsize = handsize)
         fishing[fsh] <- sum(deck$opportunities, na.rm = TRUE)
     }
     fish(fishing, turns = turns)
