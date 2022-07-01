@@ -13,17 +13,7 @@ shuffle_deck <- function(decklist) {
     stopifnot(is_deck(decklist))
     if (is_decklist(decklist)) {
         number_of_cards <- sum(decklist$number)
-        deck <- matrix(nrow = number_of_cards, ncol = 2,
-                       dimnames = list(NULL, c("type", "cost")))
-        pos <- 0L
-        for (i in seq_len(nrow(decklist))) {
-            deck[seq.int(from = pos + 1, length.out = decklist$number[i]), ] <- rep(c(
-                decklist$type[i], decklist$cost[i]), each = decklist$number[i])
-            pos <- pos + decklist$number[i]
-        }
-        deck <- as.data.frame(deck, stringsAsFactors = FALSE)
-        decklist$number <- NULL
-        deck <- full_join(x = deck, y = decklist, by = c("type", "cost"))
+        deck <- select(slice(decklist, rep(seq_len(n()), times = number)), -number)
     } else {
         number_of_cards <- nrow(decklist)
         deck <- decklist
