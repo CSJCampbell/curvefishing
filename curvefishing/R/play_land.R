@@ -3,7 +3,6 @@
 #' @description Set the turn played column of a deck with the
 #' turn based on the TRUE value found in lands_this_turn,
 #' or using the whichland argument to set the index.
-#' @inheritParams go_fish
 #' @param deck data frame with columns, "type", "cost",
 #' and optionally number, describing deck to be analysed
 #' @param turn single numeric, turn identifier(default 1)
