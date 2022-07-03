@@ -30,6 +30,9 @@ opportunities <- function(deck) {
     if (!"is_tapped" %in% colnames(deck)) {
         deck$is_tapped <- FALSE
     }
+    is_hybrid_cost <- is_hybrid(deck$cost[deck$cards_this_turn]) &
+        deck$mana_value[deck$cards_this_turn] <= sum(!is.na(deck$turn[deck$cards_this_turn]))
+    # if (any(is_hybrid_cost)) {  }
     deck <- get_mana(deck = deck)
     rows <- deck[!is.na(deck$turn) & deck$cards_this_turn & !deck$is_tapped, ]
     indx <- deck$cards_this_turn & deck$type != "land" & deck$mana_value <=

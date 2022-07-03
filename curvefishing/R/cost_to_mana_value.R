@@ -13,37 +13,64 @@
 
 cost_to_mana_value <- function(cost) {
     # handle mana cost with digits greater than 9.
-    pattern_two <- "[1-9][0-9]"
-    is_two_digits <- str_detect(string = cost, pattern = pattern_two)
-    if (any(is_two_digits)) {
-        for (two in which(is_two_digits)) {
-            two_digits <- as.numeric(str_extract(string = cost[two], pattern = pattern_two))
-            num_fives <- two_digits %/% 5
-            num_remainder <- two_digits %% 5
-            cost[two] <- str_replace(
-                string = cost[two],
-                pattern = pattern_two,
-                replacement = paste0(c(rep(5, times = num_fives), num_remainder), collapse = ""))
-        }
-    }
+    cost <- replace_two_digit(string = cost)
     # handle hybrid mana
-    pattern_hybrid <- "[wubrg]{2,5}?"
-    is_hybrid <- str_detect(string = cost, pattern = pattern_hybrid)
-    if (any(is_hybrid)) {
-        for (hyb in which(is_hybrid)) {
-            hybrid <- str_extract_all(string = cost[hyb], pattern = pattern_hybrid)[[1L]]
-            for (sym in seq_along(hybrid)) {
-                cost[hyb] <- str_replace(
-                    string = cost[hyb],
-                    pattern = pattern_hybrid,
-                    replacement = "1")
-            }
-        }
-    }
+    cost <- replace_hybrid(string = cost, replacement = "1")
     # basic mana cost
     cost <- str_replace_all(string = cost, pattern = "[WUBRGX]", replacement = "1")
     cost_list <- str_split(string = cost, pattern = "")
     vapply(X = cost_list, FUN = function(x) { sum(as.numeric(x), na.rm = TRUE) }, FUN.VALUE = numeric(1))
+}
+
+#' @noRd
+#' handle mana cost with digits greater than 9.
+#' @examples
+#' curvefishing:::replace_two_digit(string = c("RR", "2R", "RGU", "11", "1rw", "gugu"))
+
+replace_two_digit <- function(string, pattern = "[1-9][0-9]") {
+    is_two_digits <- str_detect(string = string, pattern = pattern)
+    if (any(is_two_digits)) {
+        for (two in which(is_two_digits)) {
+            two_digits <- as.numeric(str_extract(string = string[two], pattern = pattern))
+            num_fives <- two_digits %/% 5
+            num_remainder <- two_digits %% 5
+            string[two] <- str_replace(
+                string = string[two],
+                pattern = pattern,
+                replacement = paste0(c(rep(5, times = num_fives), if (num_remainder > 0) { num_remainder } else { "" }), collapse = ""))
+        }
+    }
+    string
+}
+
+is_hybrid <- function(x, pattern = "[wubrg]{2,5}?") {
+    str_detect(string = x, pattern = pattern)
+}
+
+#' @noRd
+#' handle hybrid mana
+#' @examples
+#' curvefishing:::replace_hybrid(string = c("RR", "2R", "RGU", "11", "1rw", "gugu"))
+
+replace_hybrid <- function(string, replacement = NULL, which = 1L, pattern = "[wubrg]{2,5}?") {
+    is_hybrid_str <- is_hybrid(x = string, pattern = pattern)
+    if (any(is_hybrid_str)) {
+        for (hyb in which(is_hybrid_str)) {
+            hybrid <- str_extract_all(string = string[hyb], pattern = pattern)[[1L]]
+            for (sym in seq_along(hybrid)) {
+                if (is.null(replacement)) {
+                    replace <- casefold(str_split(string = hybrid[sym], pattern = "")[[1]][which], upper = TRUE)
+                } else {
+                    replace <- replacement
+                }
+                string[hyb] <- str_replace(
+                    string = string[hyb],
+                    pattern = pattern,
+                    replacement = replace)
+            }
+        }
+    }
+    string
 }
 
 #' @title Have lands with sufficient coloured mana been played?
