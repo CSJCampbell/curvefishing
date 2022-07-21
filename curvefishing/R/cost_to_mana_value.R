@@ -19,13 +19,15 @@ cost_to_mana_value <- function(cost) {
     # basic mana cost
     cost <- str_replace_all(string = cost, pattern = "[WUBRGX]", replacement = "1")
     cost_list <- str_split(string = cost, pattern = "")
-    vapply(X = cost_list, FUN = function(x) { sum(as.numeric(x), na.rm = TRUE) }, FUN.VALUE = numeric(1))
+    vapply(X = cost_list,
+        FUN = function(x) { sum(suppressWarnings(as.numeric(x)), na.rm = TRUE) },
+        FUN.VALUE = numeric(1))
 }
 
-#' @noRd
 #' handle mana cost with digits greater than 9.
 #' @examples
 #' curvefishing:::replace_two_digit(string = c("RR", "2R", "RGU", "11", "1rw", "gugu"))
+#' @noRd
 
 replace_two_digit <- function(string, pattern = "[1-9][0-9]") {
     is_two_digits <- str_detect(string = string, pattern = pattern)
@@ -47,10 +49,11 @@ is_hybrid <- function(x, pattern = "[wubrg]{2,5}?") {
     str_detect(string = x, pattern = pattern)
 }
 
-#' @noRd
+
 #' handle hybrid mana
 #' @examples
 #' curvefishing:::replace_hybrid(string = c("RR", "2R", "RGU", "11", "1rw", "gugu"))
+#' @noRd
 
 replace_hybrid <- function(string, replacement = NULL, which = 1L, pattern = "[wubrg]{2,5}?") {
     is_hybrid_str <- is_hybrid(x = string, pattern = pattern)

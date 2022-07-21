@@ -1,8 +1,16 @@
 
 #' @title Calculate Opportunities to play cards given lands played so far
 #' @description Adds opportunities to play non-land cards available this turn
-#' @param deck data frame with columns, "type", "cost",
-#' and optionally number, describing deck to be analysed
+#' @param deck data frame with columns, "type", "cost", "turn"
+#' and optionally:
+#'
+#' * cards_this_turn, a logical column of cards available to play
+#' * mana_value, a numeric column to converted mana cost
+#' * opportunities, a numeric column counting the number of opportunities to play each card so far
+#' * is_tapped, a logical column indicating lands that cannot be used to pay costs on the turn played
+#' * is_search_basic, a logical column indicating lands that fetch basic lands from the deck
+#' * is_basic, a logical column indicating lands that have the basic subtype
+#' @param updateall single logical update all columns used? (default TRUE)
 #' @return A deck data.frame with columns named type and cost.
 #' @importFrom dplyr filter select slice n
 #' @export
@@ -15,7 +23,7 @@
 #' d1$cards_this_turn <- seq_len(nrow(d1)) %in% 1:8
 #' opportunities(deck = d1)
 
-opportunities <- function(deck) {
+opportunities <- function(deck, updateall = TRUE) {
     stopifnot(is_deck(deck))
     stopifnot("turn" %in% colnames(deck))
     if (!"cards_this_turn" %in% colnames(deck)) {
@@ -30,14 +38,29 @@ opportunities <- function(deck) {
     if (!"is_tapped" %in% colnames(deck)) {
         deck$is_tapped <- FALSE
     }
+    if (!"is_search_basic" %in% colnames(deck)) {
+        deck$is_search_basic <- FALSE
+    }
+    if (!"is_basic" %in% colnames(deck)) {
+        deck$is_basic <- deck$type == "land" &
+            deck$cost %in% c("W", "U", "B", "R", "G") &
+            !deck$is_tapped
+    }
     possibilities <- get_combinations(deck = deck)
     for (poss in seq_along(possibilities)) {
         possibilities[[poss]] <- get_opportunities(deck = possibilities[[poss]])
     }
-    possibilities[[which.max(vapply(
+    dp <- possibilities[[which.max(vapply(
         X = possibilities,
         FUN = function(x) sum(x$opportunities),
         FUN.VALUE = numeric(1L)))]]
+    if (!updateall) {
+        cols <- c("opportunities", "turn", "cards_this_turn", "is_tapped")
+        du <- deck
+        du[, cols] <- dp[, cols]
+        dp <- du
+    }
+    return(dp)
 }
 
 #' @examples
@@ -47,30 +70,110 @@ opportunities <- function(deck) {
 #'     turn = c(1, NA, NA),
 #'     stringsAsFactors = FALSE)
 #' curvefishing:::get_combinations(deck = d1)
+#' @noRd
 
 get_combinations <- function(deck, pattern = "[wubrg]{2,5}?") {
-    stopifnot(all(c("turn", "cards_this_turn", "is_tapped", "cost", "mana_value") %in% colnames(deck)))
-    is_hybrid_cost <- is_hybrid(deck$cost) &
+    stopifnot(all(c("type", "cost",
+            "turn", "cards_this_turn", "is_tapped",
+            "mana_value", "is_search_basic", "is_basic") %in% colnames(deck)))
+    deck$is_hybrid_cost <- is_hybrid(deck$cost) &
         deck$cards_this_turn &
         deck$mana_value <= sum(!is.na(deck$turn[deck$cards_this_turn]))
-    if (any(is_hybrid_cost)) {
-        hybrid_cost <- deck$cost[is_hybrid_cost]
-        hybrid <- str_extract_all(string = hybrid_cost, pattern = pattern)
-        combs <- as.matrix(expand.grid(
-            lapply(
-                X = str_split(string = hybrid, pattern = ""),
-                FUN = casefold, upper = TRUE), stringsAsFactors = FALSE))
-        possibilities <- lapply(
-            X = seq_len(nrow(combs)),
-            FUN = function(x) {
-                dd <- deck
-                dd[which(is_hybrid_cost), "cost"] <- combs[x, , drop = TRUE]
-                dd
-            })
+    if (any(deck$is_hybrid_cost)) {
+        # search for basic lands in deck
+        hybrid <- get_searchable(deck = deck, pattern = pattern)
+        if (sum(vapply(hybrid, FUN = function(x) length(x) > 0L, FUN.VALUE = logical(1L))) > 0L) {
+            # all combinations of hybrid mana for lands and spells
+            # for cards that are playable this turn
+            combs <- list_to_permutation_matrix(
+                    lapply(
+                        X = hybrid[
+                                vapply(hybrid,
+                                    FUN = function(x) length(x) > 0L,
+                                    FUN.VALUE = logical(1L))
+                            ],
+                        FUN = get_converted_hybrid_cost)
+                )
+            colnames(combs) <- seq_along(hybrid)[deck$is_hybrid_cost]
+            possibilities <- lapply(
+                X = seq_len(nrow(combs)),
+                FUN = function(i) {
+                    dd <- deck
+                    # determine which search lands can find a basic matching their colours
+                    for (j in colnames(combs)) {
+                        dd[j, "cost"] <- combs[i, j, drop = TRUE]
+                        ind <- which.max(dd$cost %in% combs[i, j, drop = TRUE] &
+                            dd$type == "land" &
+                            dd$is_basic &
+                            !dd$cards_this_turn)
+                        if (dd[j, "is_search_basic", drop = TRUE]) {
+                            dd[ind, c("cards_this_turn", "is_tapped", "turn")] <- list(TRUE, TRUE, max(dd$turn, na.rm = TRUE))
+                            dd[j, c("cost", "mana_value", "cards_this_turn")] <- list("0", 0, TRUE)
+                        }
+                    }
+                    dd
+                })
+        } else {
+            possibilities <- list(deck)
+        }
     } else {
         possibilities <- list(deck)
     }
     possibilities
+}
+
+# list_to_permutation_matrix(x = list(c("U", "R"), c("R", "G")))
+
+list_to_permutation_matrix <- function(x) {
+    as.matrix(
+        expand.grid(x,
+        stringsAsFactors = FALSE))
+}
+
+# get_converted_hybrid_cost(x = "ur") == c("U", "R")
+# get_converted_hybrid_cost(x = c("ur", "rg")) == c("UR", "RR", "UG", "RG")
+
+get_converted_hybrid_cost <- function(x) {
+    out <- vector(mode = "list", length = length(x))
+    for (i in seq_along(x)) {
+        out[[i]] <- casefold(str_split(string = x[[i]], pattern = "")[[1L]], upper = TRUE)
+    }
+    apply(X = list_to_permutation_matrix(out), MARGIN = 1, FUN = paste0, collapse = "")
+}
+
+#' @describeIn A card with TRUE 'is_search_basic'
+#' can be played if TRUE 'cards_this_turn',
+#' and a land with TRUE 'cards_this_turn'
+#' has a cost that matches the card's cost.
+#' @examples
+#' d5 <- data.frame(cost = c("rw", "R", "R", "R"),
+#'     type = c("land", "spell", "spell", "land"),
+#'     cards_this_turn = c(TRUE, TRUE, TRUE, FALSE),
+#'     is_tapped = c(TRUE, FALSE, FALSE, FALSE),
+#'     turn = c(1L, NA, NA, NA),
+#'     is_search_basic = c(TRUE, FALSE, FALSE, FALSE),
+#'     is_basic = c(FALSE, FALSE, FALSE, TRUE),
+#'     stringsAsFactors = FALSE)
+#' curvefishing:::get_searchable(deck = d5)
+
+get_searchable <- function(deck, pattern = "[wubrg]{2,5}?") {
+    stopifnot(all(c("turn", "cards_this_turn", "is_tapped",
+            "cost", "is_search_basic", "is_basic") %in% colnames(deck)))
+    hybrid <- str_extract_all(
+        string = replace(deck$cost, !deck$cards_this_turn |
+            deck$mana_value > sum(!is.na(deck$turn[deck$cards_this_turn])), ""),
+        pattern = pattern)
+    deck$is_search_this_turn <- deck$is_search_basic & deck$cards_this_turn
+    if (any(deck$is_search_this_turn)) {
+        for (sb in seq_len(sum(deck$is_search_this_turn))) {
+            basic_types <- casefold(str_split(
+                    string = hybrid[deck$is_search_this_turn][sb], pattern = "")[[1]],
+                upper = TRUE)
+            hybrid[deck$is_search_this_turn][[sb]] <- basic_types[basic_types %in%
+                deck$cost[deck$type == "land" & deck$is_basic & !deck$cards_this_turn]]
+        }
+    }
+    hybrid
 }
 
 #' @examples
@@ -81,6 +184,7 @@ get_combinations <- function(deck, pattern = "[wubrg]{2,5}?") {
 #' d1 <- play_land(deck = d1, turn = 2, whichland = which(d1$type == "land")[2])
 #' d1$cards_this_turn <- seq_len(nrow(d1)) %in% 1:8
 #' curvefishing:::get_opportunities(deck = d1)
+#' @noRd
 
 get_opportunities <- function(deck) {
     stopifnot(all(c("turn", "cards_this_turn", "is_tapped", "type", "mana_value", "opportunities") %in% colnames(deck)))

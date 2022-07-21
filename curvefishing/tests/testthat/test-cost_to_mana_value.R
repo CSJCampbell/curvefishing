@@ -11,6 +11,9 @@ test_that("check cost_to_mana_value", {
     expect_equal(cost_to_mana_value(
             cost = c("rw", "2rw", "1bgbg", "1brRrg")),
         expected = c(1, 3, 3, 4))
+    expect_equal(cost_to_mana_value(
+            cost = c("R", "s")),
+        expected = c(1, 0))
 })
 
 test_that("check replace_two_digit", {

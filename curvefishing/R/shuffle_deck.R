@@ -18,7 +18,9 @@ shuffle_deck <- function(decklist) {
         number_of_cards <- nrow(decklist)
         deck <- decklist
     }
-    deck[order(runif(number_of_cards)), ]
+    deck <- deck[order(runif(number_of_cards)), ]
+    rownames(deck) <- NULL
+    return(deck)
 }
 
 #' @describeIn shuffle_deck A deck must have columns named type and cost.

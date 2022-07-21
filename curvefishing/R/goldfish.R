@@ -24,9 +24,12 @@ goldfish <- function(deck, turns = 7L, play = TRUE, handsize = 7L) {
 
     num_lands <- sum(deck$type == "land", na.rm = TRUE)
     num_lands_played <- 0L
+    # initial cards
+    deck$cards_this_turn <- seq_len(nrow(deck)) %in% seq_len(handsize + as.numeric(!play) - 1L)
     for (turn in seq_len(turns)) {
         if (num_lands_played >= num_lands) { break }
-        deck$cards_this_turn <- seq_len(nrow(deck)) %in% seq_len(handsize + turn + as.numeric(!play) - 1L)
+        # add drawn card, avoiding previously seen cards
+        deck$cards_this_turn[which.min(deck$cards_this_turn)] <- TRUE
         deck$lands_this_turn <- deck$type == "land" & deck$cards_this_turn & is.na(deck$turn)
         if (any(deck$lands_this_turn)) {
             if (sum(deck$lands_this_turn) > 1L) {
@@ -42,10 +45,9 @@ goldfish <- function(deck, turns = 7L, play = TRUE, handsize = 7L) {
                 deck$lands_this_turn <- seq_len(nrow(deck)) == which(deck$lands_this_turn)[which.max(opps)]
             }
             deck <- play_land(deck, turn = turn)
-            deck <- opportunities(deck)
+            deck <- opportunities(deck, updateall = FALSE)
         }
         num_lands_played <- num_lands_played + 1L
     }
     return(deck)
 }
-
