@@ -23,24 +23,7 @@ rock <- tribble(
       6,                "Swamp",  "land",   "B", FALSE,
      11,               "Forest",  "land",   "G", FALSE)
 
-#'
-tweak_lands <- function(decklist,
-                        landnumber = c("W" = NA, "U" = NA, "B" = NA, "R" = NA, "G" = NA)) {
-    stopifnot(is_decklist(decklist))
-    cols <- c("W", "U", "B", "R", "G")
-    landnumber <- landnumber[cols]
-    for (land in seq_along(landnumber)) {
-        if (!is.na(landnumber[land])) {
-            decklist <- mutate(decklist,
-                number = replace(number,
-                    type == "land" & names(landnumber[land]) == cost & !is_tapped,
-                    landnumber[land]))
-        }
-    }
-    decklist
-}
-
-
+# moved tweak_lands into package 20220721
 
 # validate behaviour by having zero swamps, but increasing the number of Forest
 rock_r <- rock

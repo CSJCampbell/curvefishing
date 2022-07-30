@@ -32,7 +32,6 @@ test_that("check goldfish", {
     d9 <- data.frame(cost = c("R", "rw", "uw", "rgrg", "W", "G"),
         type = c("land", "spell", "spell", "spell", "land", "land"),
         stringsAsFactors = FALSE)
-    set.seed(5347)
     d10 <- goldfish(d9, hand = 4L)
     expect_equal(d10[c("cost", "type")], d9)
     expect_equal(d10$opportunities, c(0, 3, 2, 1, 0, 0))
