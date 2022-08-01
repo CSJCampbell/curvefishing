@@ -116,6 +116,16 @@ test_that("check get_searchable", {
     d2 <- curvefishing:::get_searchable(deck = d1)
     expect_equal(length(d2), 4L)
     expect_equal(d2[[1]], "R")
+    d3 <- data.frame(cost = c("wg", "rw", "uw", "rgrg", "W", "G"),
+        type = c("land", "spell", "spell", "spell", "land", "land"),
+        cards_this_turn = c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
+        is_tapped = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+        turn = c(1L, NA, NA, NA, NA, NA),
+        is_search_basic = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+        is_basic = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
+        stringsAsFactors = FALSE)
+    d4 <- curvefishing:::get_searchable(deck = d3)
+    expect_equal(d4, list(c("W", "G"), "rw", "uw", c("rg", "rg"), character(0), character(0)))
 })
 
 test_that("check get_opportunities", {

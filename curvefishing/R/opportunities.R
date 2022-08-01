@@ -1,19 +1,28 @@
 
 #' @title Calculate Opportunities to play cards given lands played so far
-#' @description Adds opportunities to play non-land cards available this turn
-#' @param deck data frame with columns, "type", "cost", "turn"
-#' and optionally:
 #'
-#' * cards_this_turn, a logical column of cards available to play
-#' * mana_value, a numeric column to converted mana cost
-#' * opportunities, a numeric column counting the number of opportunities to play each card so far
-#' * is_tapped, a logical column indicating lands that cannot be used to pay costs on the turn played
-#' * is_search_basic, a logical column indicating lands that fetch basic lands from the deck
-#' * is_basic, a logical column indicating lands that have the basic subtype
+#' @description Adds opportunities to play non-land cards available this turn.
+#'
+#' This function checks all combinations of coloured mana produced by lands,
+#' and all combinations of hybrid mana of spells. The combination which
+#' produces the most opportunities to play spells this turn will be selected.
+#' In the event of a tie, the first combination with the most opportunities
+#' will be selected.
+#'
+#' @param deck data frame with columns, "type", "cost", "turn"
+#' and optionally: \itemize{
+#'   \item cards_this_turn, a logical column of cards available to play
+#'   \item mana_value, a numeric column to converted mana cost
+#'   \item opportunities, a numeric column counting the number of opportunities to play each card so far
+#'   \item is_tapped, a logical column indicating lands that cannot be used to pay costs on the turn played
+#'   \item is_search_basic, a logical column indicating lands that fetch basic lands from the deck
+#'   \item is_basic, a logical column indicating lands that have the basic subtype
+#' }
 #' @param updateall single logical update all columns used? (default TRUE)
 #' @return A deck data.frame with columns named type and cost.
 #' @importFrom dplyr filter select slice n
 #' @export
+#' @seealso [`get_combinations`]
 #' @examples
 #' d1 <- shuffle_deck(sligh)
 #' d1$lands_this_turn <- seq_len(nrow(d1)) == which(d1$type == "land")[1]
@@ -63,19 +72,33 @@ opportunities <- function(deck, updateall = TRUE) {
     return(dp)
 }
 
+#' @title Internal functions for `opportunities`
+#' @description [`opportunities`] needs to perform multiple operations
+#' even to calculate which cards can be played to handle the various
+#' features of several common mechanics.
+#' @describeIn get_combinations calculates hybrid mana combinations.
+#' This function uses row id, so rownames will be removed.
+#' @inheritParams opportunities
+#' @param pattern single character regular expression for hybrid mana
+#' @return `get_combinations` returns a list of decks with each combination
+#' of hybrid, alternative or searchable mana
 #' @examples
 #' d1 <- data.frame(cost = c("R", "rw", "uw"),
+#'     type = c("land", "spell", "spell"),
 #'     cards_this_turn = TRUE,
-#'     mana_value = 1,
-#'     turn = c(1, NA, NA),
+#'     is_tapped = FALSE,
+#'     mana_value = 1L,
+#'     turn = c(1L, NA, NA),
+#'     is_basic = c(TRUE, FALSE, FALSE),
+#'     is_search_basic = FALSE,
 #'     stringsAsFactors = FALSE)
 #' curvefishing:::get_combinations(deck = d1)
-#' @noRd
 
 get_combinations <- function(deck, pattern = "[wubrg]{2,5}?") {
     stopifnot(all(c("type", "cost",
             "turn", "cards_this_turn", "is_tapped",
             "mana_value", "is_search_basic", "is_basic") %in% colnames(deck)))
+    rownames(deck) <- NULL
     deck$is_hybrid_cost <- is_hybrid(deck$cost) &
         deck$cards_this_turn &
         deck$mana_value <= sum(!is.na(deck$turn[deck$cards_this_turn]))
@@ -141,10 +164,17 @@ get_converted_hybrid_cost <- function(x) {
     apply(X = list_to_permutation_matrix(out), MARGIN = 1, FUN = paste0, collapse = "")
 }
 
-#' @describeIn A card with TRUE 'is_search_basic'
+#' @describeIn get_combinations calculates the mana value of search lands
+#' and hybrid lands and spells.
+#'
+#' A card with TRUE 'is_search_basic'
 #' can be played if TRUE 'cards_this_turn',
 #' and a land with TRUE 'cards_this_turn'
 #' has a cost that matches the card's cost.
+#' @return `get_searchable` returns a list of length nrow deck
+#' which is character(0) where cost is not hybrid,
+#' a hybrid cost (e.g. `"wub"`),
+#' or a vector or searchable basic mana types (e.g. `c("W", "U")`)
 #' @examples
 #' d5 <- data.frame(cost = c("rw", "R", "R", "R"),
 #'     type = c("land", "spell", "spell", "land"),
@@ -176,6 +206,9 @@ get_searchable <- function(deck, pattern = "[wubrg]{2,5}?") {
     hybrid
 }
 
+#' @describeIn get_combinations calculates opportunities. The mana value of lands played
+#' satisfies the mana value of each spell this turn.
+#' @return `get_opportunities` returns deck with opportunities column updated
 #' @examples
 #' d1 <- shuffle_deck(sligh)
 #' d1$lands_this_turn <- seq_len(nrow(d1)) == which(d1$type == "land")[1]
@@ -183,11 +216,13 @@ get_searchable <- function(deck, pattern = "[wubrg]{2,5}?") {
 #' d1 <- play_land(deck = d1)
 #' d1 <- play_land(deck = d1, turn = 2, whichland = which(d1$type == "land")[2])
 #' d1$cards_this_turn <- seq_len(nrow(d1)) %in% 1:8
+#' d1$opportunities <- 0
+#' d1$mana_value <- cost_to_mana_value(cost = d1$cost)
 #' curvefishing:::get_opportunities(deck = d1)
-#' @noRd
 
 get_opportunities <- function(deck) {
-    stopifnot(all(c("turn", "cards_this_turn", "is_tapped", "type", "mana_value", "opportunities") %in% colnames(deck)))
+    stopifnot(all(c("turn", "cards_this_turn", "is_tapped",
+            "type", "mana_value", "opportunities") %in% colnames(deck)))
     deck <- get_mana(deck = deck)
     rows <- deck[!is.na(deck$turn) & deck$cards_this_turn & !deck$is_tapped, ]
     indx <- deck$cards_this_turn & deck$type != "land" & deck$mana_value <=
