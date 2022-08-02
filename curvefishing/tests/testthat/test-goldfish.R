@@ -89,5 +89,5 @@ test_that("check goldfish", {
     expect_equal(d14$opportunities[1:15],
             c(0, 0, 0, 6, 0,
               0, 0, 6, 0, 3,
-              4, 0, 0, 3, 0))
+              3, 0, 0, 1, 0))
 })

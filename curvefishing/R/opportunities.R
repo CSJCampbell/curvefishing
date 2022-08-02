@@ -117,7 +117,8 @@ get_combinations <- function(deck, pattern = "[wubrg]{2,5}?") {
                             ],
                         FUN = get_converted_hybrid_cost)
                 )
-            colnames(combs) <- seq_along(hybrid)[deck$is_hybrid_cost]
+            colnames(combs) <- seq_along(hybrid)[deck$is_hybrid_cost &
+                 vapply(hybrid, FUN = function(x) length(x) > 0L, FUN.VALUE = logical(1L))]
             possibilities <- lapply(
                 X = seq_len(nrow(combs)),
                 FUN = function(i) {
@@ -153,13 +154,18 @@ list_to_permutation_matrix <- function(x) {
         stringsAsFactors = FALSE))
 }
 
+# get_converted_hybrid_cost(x = c("U", "R")) == c("U", "R")
 # get_converted_hybrid_cost(x = "ur") == c("U", "R")
 # get_converted_hybrid_cost(x = c("ur", "rg")) == c("UR", "RR", "UG", "RG")
 
 get_converted_hybrid_cost <- function(x) {
     out <- vector(mode = "list", length = length(x))
-    for (i in seq_along(x)) {
-        out[[i]] <- casefold(str_split(string = x[[i]], pattern = "")[[1L]], upper = TRUE)
+    if (all(x %in% c("W", "U", "B", "R", "G"))) {
+        out <- x
+    } else {
+        for (i in seq_along(x)) {
+            out[[i]] <- casefold(str_split(string = x[[i]], pattern = "")[[1L]], upper = TRUE)
+        }
     }
     apply(X = list_to_permutation_matrix(out), MARGIN = 1, FUN = paste0, collapse = "")
 }
