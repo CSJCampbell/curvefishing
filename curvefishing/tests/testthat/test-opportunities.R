@@ -116,7 +116,7 @@ test_that("check get_searchable", {
     d2 <- curvefishing:::get_searchable(deck = d1)
     expect_equal(length(d2), 4L)
     expect_equal(d2[[1]], "R")
-    d7 <- d5 <- d3 <- data.frame(cost = c("wg", "rw", "uw", "rgrg", "W", "G"),
+    d5 <- d3 <- data.frame(cost = c("wg", "rw", "uw", "rgrg", "W", "G"),
         type = c("land", "spell", "spell", "spell", "land", "land"),
         cards_this_turn = c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
         is_tapped = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
@@ -131,9 +131,16 @@ test_that("check get_searchable", {
     d6 <- curvefishing:::get_searchable(deck = d5)
     expect_equal(d6, list(character(0), "rw", "uw", c("rg", "rg"), character(0), character(0)))
     # search land has been used
-    d7[1, "cost"] <- "0"
-    d7[5, c("cards_this_turn", "turn")] <- list(TRUE, 1L)
+    d7 <- data.frame(cost = c("0", "wg", "rw", "uw", "rgrg", "W", "G"),
+        type = c("land", "land",  "spell", "spell", "spell", "land", "land"),
+        cards_this_turn = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
+        is_tapped = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+        turn = c(1L, NA, NA, NA, NA, 1, NA),
+        is_search_basic = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+        is_basic = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
+        stringsAsFactors = FALSE)
     d8 <- curvefishing:::get_searchable(deck = d7)
+    expect_equal(d8, list(character(0), "G", "rw", "uw", c("rg", "rg"), character(0), character(0)))
 })
 
 test_that("check get_opportunities", {

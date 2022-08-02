@@ -199,7 +199,9 @@ get_searchable <- function(deck, pattern = "[wubrg]{2,5}?") {
         string = replace(deck$cost, !deck$cards_this_turn |
             deck$mana_value > sum(!is.na(deck$turn[deck$cards_this_turn])), ""),
         pattern = pattern)
-    deck$is_search_this_turn <- deck$is_search_basic & deck$cards_this_turn
+    deck$is_search_this_turn <- deck$is_search_basic & deck$cards_this_turn &
+        # do not re-use search lands
+        deck$cost != "0"
     if (any(deck$is_search_this_turn)) {
         for (sb in seq_len(sum(deck$is_search_this_turn))) {
             basic_types <- casefold(str_split(
