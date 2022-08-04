@@ -64,9 +64,15 @@ opportunities <- function(deck, updateall = TRUE) {
         FUN = function(x) sum(x$opportunities),
         FUN.VALUE = numeric(1L)))]]
     if (!updateall) {
-        cols <- c("opportunities", "turn", "cards_this_turn", "is_tapped")
+        cols <- c("is_tapped", "opportunities", "turn", "cards_this_turn")
+        # when a sac land has been used, keep the updated cost
+        cols_cost <- c("cost", "mana_value")
+        rows_cost <- dp$cost == "0" & dp$is_search_basic & !is.na(dp$turn)
         du <- deck
         du[, cols] <- dp[, cols]
+        if (sum(rows_cost) > 0) {
+            du[rows_cost, cols_cost] <- 0
+        }
         dp <- du
     }
     return(dp)

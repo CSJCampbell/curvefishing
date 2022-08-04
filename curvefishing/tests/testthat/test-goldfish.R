@@ -43,7 +43,8 @@ test_that("check goldfish", {
         is_search_basic = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
         stringsAsFactors = FALSE)
     d12 <- goldfish(d11, hand = 4L)
-    expect_equal(d12[c("cost", "type")], d11[c("cost", "type")])
+    expect_equal(d12$cost, c("0", "rw", "uw", "rgrg", "W", "G"))
+    expect_equal(d12$type, d11$type)
     expect_equal(d12$opportunities, c(0, 1, 1, 0, 0, 0))
     expect_equal(d12$turn, c(1, NA, NA, NA, 1, 2))
     d13 <- data.frame(
@@ -89,5 +90,5 @@ test_that("check goldfish", {
     expect_equal(d14$opportunities[1:15],
             c(0, 0, 0, 6, 0,
               0, 0, 6, 0, 3,
-              3, 0, 0, 1, 0))
+              4, 0, 0, 1, 0))
 })
