@@ -1,0 +1,26 @@
+﻿number,name,type,cost,is_tapped,is_search_basic
+1,Hostile Takeover,spell,2UBR,FALSE,FALSE
+1,Mysterious Limousine,spell,3WW,FALSE,FALSE
+1,Disciplined Duelist,spell,GWU,FALSE,FALSE
+1,Sleep with the Fishes,spell,2UU,FALSE,FALSE
+1,Out of the Way,spell,3U,FALSE,FALSE
+1,Obscura Storefront,land,wub,TRUE,TRUE
+2,Raffine's Informant,spell,1W,FALSE,FALSE
+1,Echo Inspector,spell,3U,FALSE,FALSE
+1,Mountain,land,R,FALSE,FALSE
+1,Maestros Theater,land,ubr,TRUE,TRUE
+1,Swamp,land,B,FALSE,FALSE
+6,Island,land,U,FALSE,FALSE
+1,Raffine's Tower,land,wub,TRUE,FALSE
+6,Plains,land,W,FALSE,FALSE
+1,Majestic Metamorphosis,spell,2U,FALSE,FALSE
+1,Forest,land,G,FALSE,FALSE
+1,Backup Agent,spell,1W,FALSE,FALSE
+2,Dapper Shieldmate,spell,3W,FALSE,FALSE
+1,Hold for Ransom,spell,1W,FALSE,FALSE
+3,Spara's Adjudicators,spell,2GWU,FALSE,FALSE
+1,Rooftop Nuisance,spell,2U,FALSE,FALSE
+1,Glamorous Outlaw,spell,3UBR,FALSE,FALSE
+1,Shattered Seraph,spell,4WUB,FALSE,FALSE
+1,Ominous Parcel,spell,1,FALSE,FALSE
+2,Halo Scarab,spell,2,FALSE,FALSE
