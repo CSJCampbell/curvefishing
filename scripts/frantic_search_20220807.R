@@ -42,7 +42,7 @@ for (cc in seq_along(res)) {
 
 combs <- as.data.frame(combs)
 
-combs$mean <- vapply(X = res, FUN = mean, FUN.VALUE = numeric(1))
+combs$mean <- vapply(X = res, FUN = function(x) mean(attr(x = x, which = "fishing")), FUN.VALUE = numeric(1))
 
 quantile(combs$mean, probs = c(0.5, 0.9, 0.95, 0.99, 1))
 sum(combs$mean > 15)
@@ -142,3 +142,47 @@ ggplot(fd3,
     theme_bw()
 
 ggsave("uwxxx3.png")
+
+combsa <- expand.grid("W" = 4:8, "U" = 3:7, "B" = 0:2, "R" = 0:1, "G" = 1:4)
+combsa <- as.matrix(filter(combsa, apply(combsa, MARGIN = 1, FUN = function(x) sum(x) == 15L)))
+
+resa <- vector(mode = "list", length = nrow(combsa))
+
+for (i in seq_along(resa)) {
+    message("combination ", i, " of ", nrow(combsa), " at ", Sys.time())
+    limited_i <- tweak_lands(decklist = limited_1, landnumber = unlist(combsa[i, 1:5, drop = TRUE]))
+    oppsi <- attr(x = go_fish(decklist = limited_i, nsim = 1000), which = "fishing")
+    resa[[i]] <- data.frame(
+        opportunities = oppsi,
+        mean = mean(oppsi),
+        basics = paste0(combs[i, c("W", "U", "B", "R", "G"), drop = TRUE], collapse = ""))
+}
+od3 <- bind_rows(resa)
+arrange(od3, desc(mean))
+mean_66111 <- od3$mean[od3$basics == "66111"][1]
+od3 <- od3[od3$mean >= mean_66111, ]
+
+# top lands combinations
+arrange(
+    summarise(group_by(od3, basics), mean = max(mean)),
+    desc(mean))
+#    basics  mean
+#    <fct>  <dbl>
+#  1 75003   14.5
+#  2 74103   14.4
+#  3 55203   14.3
+#  4 66102   14.3
+#  5 55014   14.3
+#  6 55104   14.3
+#  7 84102   14.2
+#  8 65004   14.2
+#  9 53214   14.2
+# 10 63114   14.1
+# … with 44 more rows
+
+# analysis of variance
+aov3 <- aov(opportunities ~ basics, data = od3)
+t3 <- TukeyHSD(aov3)$basics
+t3[stringr::str_detect(rownames(t3), pattern = "75003-66111"), ]
+
+
