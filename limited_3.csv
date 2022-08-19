@@ -1,0 +1,27 @@
+﻿number,name,type,cost,is_tapped,is_search_basic
+1,"Jetmir, Nexus of Revels",spell,1RGW,FALSE,FALSE
+1,Jewel Thief,spell,2G,FALSE,FALSE
+1,Elegant Entourage,spell,3G,FALSE,FALSE
+1,Spara's Headquarters,land,gwu,TRUE,FALSE
+1,Ziatora's Proving Ground,land,brg,TRUE,FALSE
+1,Darling of the Masses,spell,2GW,FALSE,FALSE
+1,Brazen Upstart,spell,RGW,FALSE,FALSE
+1,Brokers Hideout,spell,gwu,TRUE,TRUE
+1,"Jinnie Fay, Jetmir's Second",spell,rgGgw,FALSE,FALSE
+1,Riveteers Decoy,spell,1G,FALSE,FALSE
+7,Mountain,land,R,FALSE,FALSE
+1,Botanical Plaza,land,gw,TRUE,FALSE
+2,Plains,land,W,FALSE,FALSE
+1,Warm Welcome,spell,2G,FALSE,FALSE
+2,For the Family,spell,G,FALSE,FALSE
+2,Jetmir's Fixer,spell,RG,FALSE,FALSE
+4,Forest,land,G,FALSE,FALSE
+1,Mayhem Patrol,spell,1R,FALSE,FALSE
+1,Wrecking Crew,spell,4R,FALSE,FALSE
+1,Sticky Fingers,spell,R,FALSE,FALSE
+2,Cabaretti Charm,spell,RGW,FALSE,FALSE
+1,Venom Connoisseur,spell,1G,FALSE,FALSE
+1,Ominous Parcel,spell,1,FALSE,FALSE
+2,High-Rise Sawjack,spell,2G,FALSE,FALSE
+1,Gilded Pinions,spell,2,FALSE,FALSE
+1,Glittermonger,spell,3G,FALSE,FALSE
