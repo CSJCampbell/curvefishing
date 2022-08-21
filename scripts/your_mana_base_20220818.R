@@ -126,12 +126,14 @@ ggplot(filter(fd2, mean >= mean_742),
     theme_bw() +
     facet_grid(. ~ I(basics))
 
-ggplot(filter(fd2, mean >= mean_742),
-       mapping = aes(x, y, colour = basics)) +
+ggplot(mutate(fd2, RGW = factor(c("Other", "724")[(basics == "724") + 1],
+            levels = c("Other", "724"))),
+        mapping = aes(x, y, colour = RGW)) +
     geom_step() +
     xlab("Probability") +
     ylab("Opportunities") +
     theme_bw()
+ggsave("rgw5.png")
 
 res_df <- vector(mode = "list", length = nrow(combs))
 for (i in seq_along(res)) {
@@ -147,4 +149,5 @@ quantile(od3$opportunities[od3$basics == "742"], probs = c(0.5, 0.9, 0.95, 0.99,
 
 od3 <- od3[od3$mean >= mean_742, ]
 aov3 <- aov(opportunities ~ basics, data = od3)
-TukeyHSD(aov3)
+t3 <- TukeyHSD(aov3)$basics
+t3[t3[, 4] < 0.001, ]
