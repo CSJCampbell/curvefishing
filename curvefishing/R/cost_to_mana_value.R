@@ -122,17 +122,14 @@ get_mana_cols_tab <- function(cost) {
 #' @noRd
 #' @return A deck data.frame with columns named type and cost,
 #' and also columns w, u, b, r, g counting the number of each mana symbol in cost.
+#' @seealso get_mana_cols_tab
 #' @examples
 #' curvefishing:::get_mana(deck = shuffle_deck(sligh))
 
 get_mana <- function(deck) {
-    cost_tab <- get_mana_cols_tab(cost = deck$cost)
-    cost_df <- as.data.frame(t(cost_tab))
-    colnames(cost_df) <- casefold(colnames(cost_df), upper = FALSE)
-    if (all(c("w", "u", "b", "r", "g") %in% colnames(deck))) {
-        deck[, c("w", "u", "b", "r", "g")] <- cost_df
-        deck
-    } else {
-        cbind(deck, cost_df)
+    cols <- c("W", "U", "B", "R", "G")
+    for (cl in cols) {
+        deck[[casefold(cl, upper = FALSE)]] <- str_count(string = deck$cost, pattern = cl)
     }
+    return(deck)
 }
