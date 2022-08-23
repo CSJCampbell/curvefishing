@@ -36,16 +36,3 @@ play_land <- function(deck, turn = 1L, whichland = NULL) {
     deck[deck$lands_this_turn & is.na(deck$turn), "turn"] <- turn
     return(deck)
 }
-
-#' @noRd
-#' @return A deck data.frame with columns named type and cost.
-#' @examples
-#' curvefishing:::get_mana(deck = shuffle_deck(sligh))
-
-get_mana <- function(deck) {
-    cols <- c("W", "U", "B", "R", "G")
-    for (cl in cols) {
-        deck[[casefold(cl, upper = FALSE)]] <- str_count(string = deck$cost, pattern = cl)
-    }
-    return(deck)
-}

@@ -40,3 +40,14 @@ test_that("check has_resource", {
             resource = c(0, 0, 0, 1, 0)),
         expected = c(FALSE, TRUE, FALSE, TRUE))
 })
+
+test_that("check get_mana", {
+    d1 <- data.frame(cost = c("R", "R", "1", "RR"),
+        type = c("land", "spell", "spell", "spell"),
+        turn = c(1, NA, NA, NA),
+        lands_this_turn = c(TRUE, FALSE, FALSE, FALSE),
+        stringsAsFactors = FALSE)
+    o1 <- curvefishing:::get_mana(d1)
+    expect_equal(o1$w, expected = c(0, 0, 0, 0))
+    expect_equal(o1$r, expected = c(1, 1, 0, 2))
+})

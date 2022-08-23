@@ -88,7 +88,51 @@ replace_hybrid <- function(string, replacement = NULL, which = 1L, pattern = "[w
 #' curvefishing:::has_resource(cost = c("RR", "2R", "RGU", "11"), resource = c(0, 0, 0, 1, 0))
 
 has_resource <- function(cost, resource) {
-    cost_df <- get_mana(data.frame(cost = cost, stringsAsFactors = FALSE))
-    has_each <- as.matrix(cost_df[-1]) <= matrix(resource, ncol = 5, nrow = nrow(cost_df), byrow = TRUE)
-    apply(X = has_each, MARGIN = 1L, FUN = all)
+    cost_tab <- get_mana_cols_tab(cost)
+    has_each <- cost_tab <= matrix(resource, ncol = ncol(cost_tab), nrow = 5, byrow = FALSE)
+    apply(X = has_each, MARGIN = 2L, FUN = all)
+}
+
+#' @noRd
+#' @param x character vector containing WUBRG mana symbols
+#' @return numeric vector length 5
+#' @examples curvefishing:::count_mana(c("R", "R"))
+
+count_mana <- function(x) {
+    res <- numeric(5)
+    names(res) <- c("W", "U", "B", "R", "G")
+    for (mana in names(res)) {
+        res[[mana]] <- sum(x == mana)
+    }
+    res
+}
+
+#' @noRd
+#' @description Count mana symbols in cost
+#' @param cost character vector containing WUBRG mana symbols
+#' @return numeric matrix with 5 rows corresponding to WUBRG,
+#' and columns equal to length cost
+#' @examples curvefishing:::get_mana_cols_tab(cost = c("RR", "2R", "RGU", "11"))
+
+get_mana_cols_tab <- function(cost) {
+    cost_list <- str_split(string = cost, pattern = "")
+    vapply(X = cost_list, FUN = count_mana, FUN.VALUE = numeric(5))
+}
+
+#' @noRd
+#' @return A deck data.frame with columns named type and cost,
+#' and also columns w, u, b, r, g counting the number of each mana symbol in cost.
+#' @examples
+#' curvefishing:::get_mana(deck = shuffle_deck(sligh))
+
+get_mana <- function(deck) {
+    cost_tab <- get_mana_cols_tab(cost = deck$cost)
+    cost_df <- as.data.frame(t(cost_tab))
+    colnames(cost_df) <- casefold(colnames(cost_df), upper = FALSE)
+    if (all(c("w", "u", "b", "r", "g") %in% colnames(deck))) {
+        deck[, c("w", "u", "b", "r", "g")] <- cost_df
+        deck
+    } else {
+        cbind(deck, cost_df)
+    }
 }
