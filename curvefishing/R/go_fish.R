@@ -23,6 +23,7 @@
 go_fish <- function(decklist, turns = 7L, play = TRUE, handsize = 7L, nsim = 100L) {
     fishing <- numeric(length = nsim)
     deck <- shuffle_deck(decklist)
+    deck$mana_value <- cost_to_mana_value(cost = deck$cost)
     for (fsh in seq_along(fishing)) {
         deck_f <- goldfish(deck = shuffle_deck(deck),
             turns = turns, play = play, handsize = handsize)
@@ -46,14 +47,23 @@ fish <- function(x, turns = 7L) {
     return(fish)
 }
 
+#' @method print fish
+#' @export
+
 print.fish <- function(x, ...) {
     print(data.frame("><>" = c(x), row.names = "", check.names = FALSE))
     invisible(x)
 }
 
+#' @method quantile fish
+#' @export
+
 quantile.fish <- function(x, na.rm = TRUE, ...) {
     quantile(x = attr(x = x, which = "fishing"), na.rm = na.rm, ...)
 }
+
+#' @method mean fish
+#' @export
 
 mean.fish <- function(x, na.rm = TRUE, ...) {
     mean(x = attr(x = x, which = "fishing"), na.rm = na.rm, ...)
@@ -64,6 +74,7 @@ mean.fish <- function(x, na.rm = TRUE, ...) {
 #' creates a \pkg{graphics} plot for the fish class.
 #' @importFrom graphics plot points text
 #' @method plot fish
+#' @export
 #' @examples
 #' f1 <- go_fish(decklist = sligh, nsim = 20)
 #' plot(f1)

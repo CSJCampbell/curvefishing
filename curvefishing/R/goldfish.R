@@ -15,7 +15,9 @@
 
 goldfish <- function(deck, turns = 7L, play = TRUE, handsize = 7L) {
     stopifnot(is_deck(deck))
-    deck$mana_value <- cost_to_mana_value(cost = deck$cost)
+    if (!"mana_value" %in% names(deck)) {
+        deck$mana_value <- cost_to_mana_value(cost = deck$cost)
+    }
     deck$opportunities <- 0L
     deck$turn <- NA_integer_
     deck$cards_this_turn <- FALSE

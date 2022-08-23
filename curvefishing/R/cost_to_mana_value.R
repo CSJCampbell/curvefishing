@@ -1,6 +1,8 @@
 
 #' @title Convert mana cost to mana value
 #' @description Calculate mana value, ignoring coloured mana.
+#' X is always counted as 1 as many spells do not provide
+#' value when cast for 0.
 #' @param cost character vector containing coloured mana requirements
 #' (W, U, B, R, G). Hybrid coloured mana is also supported
 #' (e.g. wu, ub, ub, ur, br, bg, rg, rw, gw, gu).
@@ -18,11 +20,11 @@ cost_to_mana_value <- function(cost) {
     cost <- replace_hybrid(string = cost, replacement = "1")
     # basic mana cost
     cost <- str_replace_all(string = cost, pattern = "[WUBRGX]", replacement = "1")
-    cost_list <- str_split(string = cost, pattern = "")
-    vapply(X = cost_list,
-        FUN = function(x) { sum(suppressWarnings(as.numeric(x)), na.rm = TRUE) },
-        FUN.VALUE = numeric(1))
+    cost <- str_replace_all(string = cost, pattern = "[A-Za-z]", replacement = "0")
+    vapply(X = strtoi(cost), FUN = sum_int, FUN.VALUE = numeric(1))
 }
+
+sum_int <- function(x) sum(floor(x / 10^(seq_len(nchar(x)) - 1)) %% 10)
 
 #' handle mana cost with digits greater than 9.
 #' @examples
