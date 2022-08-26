@@ -24,9 +24,14 @@ go_fish <- function(decklist, turns = 7L, play = TRUE, handsize = 7L, nsim = 100
     fishing <- numeric(length = nsim)
     deck <- shuffle_deck(decklist)
     deck$mana_value <- cost_to_mana_value(cost = deck$cost)
+    any_is_hybrid <- any(is_hybrid(deck$cost))
+    if (!any_is_hybrid) {
+        deck <- get_mana(deck = deck)
+    }
     for (fsh in seq_along(fishing)) {
         deck_f <- goldfish(deck = shuffle_deck(deck),
-            turns = turns, play = play, handsize = handsize)
+            turns = turns, play = play, handsize = handsize,
+            ishybrid = any_is_hybrid)
         fishing[fsh] <- sum(deck_f$opportunities, na.rm = TRUE)
     }
     fish(fishing, turns = turns)

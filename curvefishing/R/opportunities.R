@@ -19,6 +19,7 @@
 #'   \item is_basic, a logical column indicating lands that have the basic subtype
 #' }
 #' @param updateall single logical update all columns used? (default TRUE)
+#' @inheritParams goldfish
 #' @return A deck data.frame with columns named type and cost.
 #' @importFrom dplyr filter select slice n
 #' @export
@@ -32,7 +33,7 @@
 #' d1$cards_this_turn <- seq_len(nrow(d1)) %in% 1:8
 #' opportunities(deck = d1)
 
-opportunities <- function(deck, updateall = TRUE) {
+opportunities <- function(deck, updateall = TRUE, ishybrid = NULL) {
     stopifnot(is_deck(deck))
     stopifnot("turn" %in% colnames(deck))
     if (!"cards_this_turn" %in% colnames(deck)) {
@@ -55,9 +56,12 @@ opportunities <- function(deck, updateall = TRUE) {
             deck$cost %in% c("W", "U", "B", "R", "G") &
             !deck$is_tapped
     }
+    if (is.null(ishybrid)) {
+        ishybrid <- any(is_hybrid(deck$cost))
+    }
     possibilities <- get_combinations(deck = deck)
     for (poss in seq_along(possibilities)) {
-        possibilities[[poss]] <- get_opportunities(deck = possibilities[[poss]])
+        possibilities[[poss]] <- get_opportunities(deck = possibilities[[poss]], ishybrid = ishybrid)
     }
     dp <- possibilities[[which.max(vapply(
         X = possibilities,
@@ -222,6 +226,7 @@ get_searchable <- function(deck, pattern = "[wubrg]{2,5}?") {
 
 #' @describeIn get_combinations calculates opportunities. The mana value of lands played
 #' satisfies the mana value of each spell this turn.
+#' @inheritParams goldfish
 #' @return `get_opportunities` returns deck with opportunities column updated
 #' @examples
 #' d1 <- shuffle_deck(sligh)
@@ -234,10 +239,15 @@ get_searchable <- function(deck, pattern = "[wubrg]{2,5}?") {
 #' d1$mana_value <- cost_to_mana_value(cost = d1$cost)
 #' curvefishing:::get_opportunities(deck = d1)
 
-get_opportunities <- function(deck) {
+get_opportunities <- function(deck, ishybrid = NULL) {
     stopifnot(all(c("turn", "cards_this_turn", "is_tapped",
             "type", "mana_value", "opportunities") %in% colnames(deck)))
-    deck <- get_mana(deck = deck)
+    if (is.null(ishybrid)) {
+        ishybrid <- any(is_hybrid(deck$cost))
+    }
+    if (ishybrid || !all(c("w", "u", "b", "r", "g") %in% colnames(deck))) {
+        deck <- get_mana(deck = deck)
+    }
     rows <- deck[!is.na(deck$turn) & deck$cards_this_turn & !deck$is_tapped, ]
     indx <- deck$cards_this_turn & deck$type != "land" & deck$mana_value <=
         sum(rows$mana_value, na.rm = TRUE) & has_resource(

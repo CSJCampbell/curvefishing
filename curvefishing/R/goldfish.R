@@ -5,6 +5,9 @@
 #' One land is played each turn, attempt to maximise the opportunity
 #' each turn.
 #' @param deck data frame with columns, "type" and "cost".
+#' @param ishybrid single logical or NULL (default)
+#' If TRUE, deck cost contains hybrid mana (or land(s) tap for more than 1 colour.
+#' Costs must be calculated each time.
 #' @inheritParams go_fish
 #' @return A deck data.frame with columns named type and cost.
 #' Columns mana_value, opportunities, turn, cards_this_turn,
@@ -13,17 +16,22 @@
 #' @examples
 #' goldfish(deck = shuffle_deck(sligh))
 
-goldfish <- function(deck, turns = 7L, play = TRUE, handsize = 7L) {
+goldfish <- function(deck, turns = 7L, play = TRUE,
+    handsize = 7L, ishybrid = NULL) {
     stopifnot(is_deck(deck))
     if (!"mana_value" %in% names(deck)) {
         deck$mana_value <- cost_to_mana_value(cost = deck$cost)
+    }
+    if (is.null(ishybrid)) {
+        ishybrid <- any(is_hybrid(deck$cost))
+    }
+    if (!all(c("w", "u", "b", "r", "g") %in% colnames(deck))) {
+        deck <- get_mana(deck = deck)
     }
     deck$opportunities <- 0L
     deck$turn <- NA_integer_
     deck$cards_this_turn <- FALSE
     deck$lands_this_turn <- FALSE
-    deck <- get_mana(deck)
-
     num_lands <- sum(deck$type == "land", na.rm = TRUE)
     num_lands_played <- 0L
     # initial cards
@@ -40,13 +48,13 @@ goldfish <- function(deck, turns = 7L, play = TRUE, handsize = 7L) {
                 opps <- numeric(sum(deck_turn$lands_this_turn))
                 lands <- which(deck_turn$lands_this_turn)
                 for (ind in seq_along(lands)) {
-                    possible_hand <- opportunities(play_land(deck_turn, whichland = lands[ind]))
+                    possible_hand <- opportunities(play_land(deck_turn, whichland = lands[ind]), ishybrid = ishybrid)
                     opps[ind] <- sum(possible_hand$opportunities)
                 }
                 deck$lands_this_turn <- seq_len(nrow(deck)) == which(deck$lands_this_turn)[which.max(opps)]
             }
             deck <- play_land(deck, turn = turn)
-            deck <- opportunities(deck, updateall = FALSE)
+            deck <- opportunities(deck, updateall = FALSE, ishybrid = ishybrid)
         }
         num_lands_played <- num_lands_played + 1L
     }
