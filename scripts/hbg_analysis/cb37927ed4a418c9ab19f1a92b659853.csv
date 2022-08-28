@@ -1,0 +1,19 @@
+name,number,type,cost,is_tapped,is_basic
+Kobold Warcaller,1,spell,R,FALSE,FALSE
+Tiefling Outcasts,1,spell,R,FALSE,FALSE
+Battle Cry Goblin,1,spell,1R,FALSE,FALSE
+Dragon's Fire,1,spell,1R,FALSE,FALSE
+Genasi Rabble-Rouser,3,spell,1R,FALSE,FALSE
+Gnoll Hunter,3,spell,1G,FALSE,FALSE
+Hobgoblin Captain,2,spell,1R,FALSE,FALSE
+"Jaheira, Harper Emissary",1,spell,1G,FALSE,FALSE
+Two-Handed Axe,1,spell,1R,FALSE,FALSE
+Arcane Archery,2,spell,2G,FALSE,FALSE
+Band Together,2,spell,2G,FALSE,FALSE
+Circle of the Moon Druid,2,spell,2G,FALSE,FALSE
+Valor Singer,1,spell,2R,FALSE,FALSE
+Dread Linnorm,1,spell,3G,FALSE,FALSE
+Owlbear,1,spell,3GG,FALSE,FALSE
+Warriors of Tiamat,1,spell,4R,FALSE,FALSE
+Forest,8,land,G,FALSE,TRUE
+Mountain,8,land,R,FALSE,TRUE

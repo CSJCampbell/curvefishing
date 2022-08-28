@@ -1,0 +1,24 @@
+name,number,type,cost,is_tapped,is_basic
+Kobold Warcaller,1,spell,R,FALSE,FALSE
+Tiefling Outcasts,1,spell,R,FALSE,FALSE
+Dragon's Fire,1,spell,1R,FALSE,FALSE
+Fiendlash,1,spell,1R,FALSE,FALSE
+Genasi Rabble-Rouser,2,spell,1R,FALSE,FALSE
+Gnoll Hunter,2,spell,1G,FALSE,FALSE
+Hobgoblin Captain,3,spell,1R,FALSE,FALSE
+Reckless Barbarian,1,spell,1R,FALSE,FALSE
+Underdark Basilisk,1,spell,1G,FALSE,FALSE
+You Come to the Gnoll Camp,1,spell,1R,FALSE,FALSE
+Band Together,1,spell,2G,FALSE,FALSE
+Circle of the Moon Druid,1,spell,2G,FALSE,FALSE
+"Lukamina, Moon Druid",1,spell,2G,FALSE,FALSE
+Pilgrim's Eye,1,spell,3,FALSE,FALSE
+Swashbuckler Extraordinaire,1,spell,2R,FALSE,FALSE
+Druid of the Emerald Grove,1,spell,3G,FALSE,FALSE
+Jaded Sell-Sword,1,spell,3R,FALSE,FALSE
+Unexpected Windfall,1,spell,2RR,FALSE,FALSE
+Ancient Copper Dragon,1,spell,4RR,FALSE,FALSE
+Forest,7,land,G,FALSE,TRUE
+Gate to Manorborn,1,land,G,TRUE,FALSE
+Gate to Tumbledown,1,land,R,TRUE,FALSE
+Mountain,8,land,R,FALSE,TRUE

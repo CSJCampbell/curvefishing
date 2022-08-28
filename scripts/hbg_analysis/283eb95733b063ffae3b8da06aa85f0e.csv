@@ -1,0 +1,24 @@
+name,number,type,cost,is_tapped,is_basic
+Kobold Warcaller,2,spell,R,FALSE,FALSE
+Spiked Pit Trap,1,spell,1,FALSE,FALSE
+Dragon's Fire,1,spell,1R,FALSE,FALSE
+"Korlessa, Scale Singer",1,spell,GU,FALSE,FALSE
+Poison the Blade,2,spell,1G,FALSE,FALSE
+Reckless Barbarian,2,spell,1R,FALSE,FALSE
+Scaled Nurturer,1,spell,1G,FALSE,FALSE
+Bronze Walrus,1,spell,3,FALSE,FALSE
+Improvised Weaponry,1,spell,2R,FALSE,FALSE
+Pseudodragon Familiar,2,spell,2U,FALSE,FALSE
+Swashbuckler Extraordinaire,1,spell,2R,FALSE,FALSE
+Undercellar Myconid,1,spell,2G,FALSE,FALSE
+Ambitious Dragonborn,1,spell,3G,FALSE,FALSE
+Dread Linnorm,1,spell,3G,FALSE,FALSE
+"Oyaminartok, Polar Werebear",1,spell,2GG,FALSE,FALSE
+"Lozhan, Dragons' Legacy",1,spell,3UR,FALSE,FALSE
+Warriors of Tiamat,2,spell,4R,FALSE,FALSE
+Wrathful Red Dragon,1,spell,3RR,FALSE,FALSE
+Draconic Lore,1,spell,5U,FALSE,FALSE
+Forest,6,land,G,FALSE,TRUE
+Gate to Seatower,1,land,U,TRUE,FALSE
+Island,3,land,U,FALSE,TRUE
+Mountain,7,land,R,FALSE,TRUE

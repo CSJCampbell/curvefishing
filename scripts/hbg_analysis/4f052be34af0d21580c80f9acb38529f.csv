@@ -1,0 +1,20 @@
+name,number,type,cost,is_tapped,is_basic
+Favored Enemy,1,spell,G,FALSE,FALSE
+Dragon's Fire,1,spell,1R,FALSE,FALSE
+Genasi Rabble-Rouser,4,spell,1R,FALSE,FALSE
+Hobgoblin Captain,1,spell,1R,FALSE,FALSE
+Reckless Barbarian,1,spell,1R,FALSE,FALSE
+"Ambergris, Citadel Agent",1,spell,2R,FALSE,FALSE
+Band Together,1,spell,2G,FALSE,FALSE
+Improvised Weaponry,1,spell,2R,FALSE,FALSE
+Undercellar Myconid,1,spell,2G,FALSE,FALSE
+Ambitious Dragonborn,2,spell,3G,FALSE,FALSE
+Unexpected Windfall,1,spell,2RR,FALSE,FALSE
+Farideh's Fireball,2,spell,3RR,FALSE,FALSE
+Owlbear,1,spell,3GG,FALSE,FALSE
+Thrakkus the Butcher,1,spell,3RG,FALSE,FALSE
+Warriors of Tiamat,1,spell,4R,FALSE,FALSE
+"Gut, Fanatical Priestess",1,spell,4RR,FALSE,FALSE
+Hill Giant Herdgorger,2,spell,4GG,FALSE,FALSE
+Forest,8,land,G,FALSE,TRUE
+Mountain,9,land,R,FALSE,TRUE
