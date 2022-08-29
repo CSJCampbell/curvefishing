@@ -105,7 +105,7 @@ filter(game2, day > 18) %>%
     geom_point(mapping = aes(alpha = N)) +
     geom_smooth(se = FALSE) +
     theme_bw()
-ggsave("rating1.png")
+ggsave("rank_ratings1.png")
 
 combs <- expand.grid(day = 19,
     rank = pr1$ratings$Player,
@@ -124,4 +124,4 @@ cbind(mutate(combs,
     ylab("Rank") +
     scale_fill_viridis_c() +
     theme_bw()
-ggsave("rating2.png")
+ggsave("rank_ratings2.png")
