@@ -7,7 +7,7 @@ This package uses a simplified simulation engine to goldfish for the mana curve.
     install.packages("devtools")
     library(devtools)
     # install curvefishing
-    install_github("CSJCampbell/curvefishing/curvefishing")
+    install_github("CSJCampbell/curvefishing/curvefishing@main")
 
 The input to the package tools are deck data frames with column names:
 
