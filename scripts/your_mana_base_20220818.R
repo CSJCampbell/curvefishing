@@ -9,59 +9,12 @@ library(forcats)
 limited <- read.csv("limited_3.csv", stringsAsFactors = FALSE)
 limited
 
-# f1 <- go_fish(decklist = limited, nsim = 1000)
-# fishing1 <- attr(x = f1, which = "fishing")
-# fd1 <- data.frame(
-#     x = seq_along(fishing1) / length(fishing1),
-#     y = sort(fishing1))
-# ggplot(fd1,
-#        mapping = aes(x, y)) +
-#     geom_step() +
-#     geom_point(data = data.frame(x = c(0.5, 0.5), y = c(f1, mean(fishing1))), colour = c("black", "red")) +
-#     geom_text(data = data.frame(x = c(0.5, 0.5), y = c(f1, mean(fishing1))), colour = c("black", "red"),
-#               mapping = aes(label = round(y, digits = 1)),
-#               nudge_y = c(2, -2)) +
-#     xlab("Probability") +
-#     ylab("Opportunities") +
-#     theme_bw()
-# ggsave("rgw1.png")
-
 # maximise number of opportunities
 
 combs <- expand.grid("R" = 3:7, "G" = 1:6, "W" = 0:4)
 combs <- as.matrix(filter(combs, apply(combs, MARGIN = 1, FUN = function(x) sum(x) == 13L)))
 combs <- as.data.frame(combs)
 res <- vector(mode = "list", length = nrow(combs))
-
-# for (cc in seq_along(res)) {
-#     message("combination ", cc, " of ", nrow(combs), " at ", Sys.time())
-#     limited_cc <- tweak_lands(decklist = limited, landnumber = combs[cc, , drop = TRUE])
-#     f_cc <- go_fish(decklist = limited_cc, nsim = 1000)
-#     res[[cc]] <- f_cc
-# }
-#
-# combs <- as.data.frame(combs)
-#
-# combs$mean <- vapply(X = res, FUN = function(x) mean(attr(x = x, which = "fishing")), FUN.VALUE = numeric(1))
-#
-# quantile(combs$mean, probs = c(0.5, 0.9, 0.95, 0.99, 1))
-#
-# ggplot(
-#     mutate(
-#         pivot_longer(
-#             combs,
-#             cols = -c(mean), names_to = "Basic", values_to = "Count"),
-#         Basic = factor(Basic, levels = c("W", "U", "B", "R", "G"))),
-#     mapping = aes(
-#         x = Basic,
-#         y = Count,
-#         group = mean,
-#         color = mean)) +
-#     geom_line(alpha = 0.6) +
-#     scale_colour_gradientn(colours = viridisLite::magma(50)) +
-#     xlab(NULL) +
-#     theme_bw()
-
 
 res_ls <- vector(mode = "list", length = nrow(combs))
 
@@ -82,17 +35,9 @@ for (i in seq_along(res_ls)) {
         mean = mean(fishing))
 }
 
-# vapply(X = res, FUN = function(x) mean(attr(x = x, which = "fishing")), FUN.VALUE = numeric(1))
-
-# mean_742 <- combs[combs$R == 7 & combs$G == 4 & combs$W == 2, "mean", drop = TRUE]
-
 fd2 <- bind_rows(res_ls)
 mean_742 <- fd2[fd2$basics == "742", "mean", drop = TRUE][1]
 
-# fd2 <- left_join(
-#     x = bind_rows(res_ls),
-#     y = mutate(combs, basics = paste0(R, G, W), i = seq_len(nrow(combs)) - 1),
-#     by = "i")
 
 ggplot(mutate(filter(fd2, mean >= mean_742), basics = fct_reorder(basics, -mean)),
        mapping = aes(x = basics, y, fill = basics)) +
@@ -104,7 +49,7 @@ ggplot(mutate(filter(fd2, mean >= mean_742), basics = fct_reorder(basics, -mean)
     ylab("Opportunities") +
     theme_bw()
 
-ggsave("rgw3.png")
+ggsave("your_mana_base_rgw3.png")
 
 ggplot(mutate(filter(fd2, mean >= mean_742), basics = fct_reorder(basics, -mean)),
        mapping = aes(x = y, fill = basics)) +
@@ -116,7 +61,7 @@ ggplot(mutate(filter(fd2, mean >= mean_742), basics = fct_reorder(basics, -mean)
     ylab("Density") +
     theme_bw()
 
-ggsave("rgw4.png")
+ggsave("your_mana_base_rgw4.png")
 
 ggplot(filter(fd2, mean >= mean_742),
        mapping = aes(x, y)) +
@@ -133,7 +78,7 @@ ggplot(mutate(fd2, RGW = factor(c("Other", "724")[(basics == "724") + 1],
     xlab("Probability") +
     ylab("Opportunities") +
     theme_bw()
-ggsave("rgw5.png")
+ggsave("your_mana_base_rgw5.png")
 
 res_df <- vector(mode = "list", length = nrow(combs))
 for (i in seq_along(res)) {
