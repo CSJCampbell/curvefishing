@@ -106,6 +106,10 @@ as this felt like a sensible number. Larger numbers allow higher mana value
 spells to have opportunities, but the more turns that elapse, the less likely it 
 is that a real game would still be in progress.
 When goldfishing, the analysis will stop when all lands have been played.
+No cards are played, and there is no maximum hand size, so playable cards 
+increases by 1 each turn (although lands are played up to once each).
+When goldfishing, `go_fish` never takes a mulligan. This avoids deciding on 
+universally applicable mulligan logic.
 
 ```{r goldfish}
 goldfish(deck = shuffle_deck(sligh))[1:13, 
