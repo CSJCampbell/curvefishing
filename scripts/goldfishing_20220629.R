@@ -34,7 +34,7 @@ ggplot(fd1,
     xlab("Probability") +
     ylab("Opportunities") +
     theme_bw()
-ggsave("sligh.png")
+ggsave("goldfishing_sligh.png")
 
 f2 <- go_fish(decklist = rock, nsim = 500)
 fishing2 <- attr(x = f2, which = "fishing")
@@ -47,6 +47,6 @@ ggplot(fd2,
   xlab("Probability") +
   ylab("Opportunities") +
   theme_bw()
-ggsave("rock.png")
+ggsave("goldfishing_rock.png")
 f2
 

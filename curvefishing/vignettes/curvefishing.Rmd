@@ -1,0 +1,119 @@
+---
+title: "Goldfish a Magic: The Gathering Deck's Mana Curve"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{curvefishing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+The game **Magic: the Gathering** consists of playing _lands_,
+which allow a player to cast _spells_ to play against another player.
+This package uses a simplified simulation engine to goldfish for the mana curve;
+the speed at which spells can be played. The `go_fish` function takes a decklist
+and estimates the distribution of opportunities to play spells over a number of turns.
+
+```{r setup}
+library(curvefishing)
+data(sligh)
+s1 <- go_fish(sligh)
+quantile(s1)
+```
+
+The output is a `fish` object, which contains the simulation results, 
+and has some basic methods.
+
+```{r methods}
+methods(class = "fish")
+```
+
+## The Deck
+
+The input to the package tools are decks. A deck has one row per card. 
+Decks are generally shared as decklists. A decklist has one or more rows 
+per card, and a _number_ defining how many of each card is in the deck.
+There is no limitation of how big a deck should be. 
+
+Decks and decklists are data frames with column names:
+
+* _type_: character column with values `"land"` and `"spell"`
+* _cost_: character column with WUBRG mana costs, e.g. `"1WUB"`
+* _number_: optional numeric column indicating this is a decklist, number of cards to include in deck, e.g. `4`
+* _is\_tapped_: optional logical column indicating land enters tapped
+* _is\_search\_basic_: optional logical column indicating land 
+* _is\_basic_: optional logical column indicating land has basic supertype (e.g. is searchable)
+
+```{r deck}
+is_decklist(sligh)
+```
+
+Decks can be any _number_ of cards, so decklists are also decks.
+`shuffle_deck` will convert a decklist into a deck (this is also done by `go_fish`).
+
+```{r shuffle}
+head(shuffle_deck(sligh))
+```
+
+All entries in _type_ must be `"land"` or `"spell"` (case sensitive).
+
+> Spells with the `"land"` type not currently implemented.
+
+The _cost_ for `"land"` and `"spell"` must be complete for all entries.
+
+For lands, the cost is the amount of coloured or colourless mana that
+land can produce each turn. If the land _is\_tapped_ then it does 
+not produce mana the turn it enters.
+
+Lands which can produce alternative colours of mana be coded
+using lowercase n-lets. For example, a land that taps for `"W"` or `"B"`
+has _cost_ `"wb"`. A land that taps for `"U"`, `"B"`, or `"R"` 
+has _cost_ `"ubr"`.
+
+If the land _is\_search\_basic_
+then the cost defines which land can be found. A land must also be 
+_is\_basic_ to be found. A lowercase cost indicates which basic lands can be found, 
+so `"wrg"` to find a Plains, Mountain or Forest.
+
+> Lands which require mana to activate not currently implemented.
+
+For spells, the cost is the amount of coloured or colourless mana that
+is required to have an opportunity to play it each turn. 
+For example, if a Mountain is played on turn 1, there is an opportunity
+to play each spell that costs `"1"` or `"R"` in this and each subsequent 
+turn of the analysis. If lands producing `"R"`, `"G"`, `"U"` are untapped 
+on turn 3, there is not yet an opportunity to play a spell that costs `"1RR"`.
+
+Spells which can be paid for with hybrid mana can be coded
+using lowercase _n_-lets. For example, spell with _cost_ `"wb"` 
+has an opportunity to be played if a land that taps for `"W"` or `"B"`
+has been played.
+
+## Opportunities
+
+`go_fish` is a top level wrapper that requests the simulations. Increasing the number
+of simulations, _nsim_, improves the estimate of the distribution, but takes longer.
+`goldfish` evaluates the individual "games". The default number of games is 7, 
+as this felt like a sensible number. Larger numbers allow higher mana value 
+spells to have opportunities, but the more turns that elapse, the less likely it 
+is that a real game would still be in progress.
+When goldfishing, the analysis will stop when all lands have been played.
+
+```{r goldfish}
+goldfish(deck = shuffle_deck(sligh))[1:13, 
+    c("name", "type", "cost", "opportunities", "turn")]
+```
+
+The opportunity counts are performed by `opportunities`. 
+This function calculates all combinations of lands and mana costs for spells 
+in hand. Whichever land produces the most opportunities will be played, 
+and the opportunities for the turn added on. In the event of a tie, the next land
+by row number will be selected (i.e. random).

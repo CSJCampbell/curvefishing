@@ -12,9 +12,10 @@ This package uses a simplified simulation engine to goldfish for the mana curve.
 The input to the package tools are deck data frames with column names:
 
 * _type_: character column with values `"land"` and `"spell"`
-* _cost_: character column with WUBRG mana costs, e.g. `"1WUB"`
+* _cost_: character column with WUBRG mana costs, e.g. `"1WUB"`.
 * _number_: optional numeric column, number of cards to include in deck, e.g. `4`
 
+See `vignette(topic = "curvefishing")` for full deck specification.
 To estimate the fish metric for a deck, the `go_fish` function will expand decklists with the number column, then shuffle and analyse the first 7 turns for opportunities to play.
 
     library(dplyr)
