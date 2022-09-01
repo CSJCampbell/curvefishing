@@ -37,7 +37,7 @@ test_that("check opportunities", {
         is_basic = c(FALSE, FALSE, TRUE, FALSE), stringsAsFactors = FALSE)
     do6 <- opportunities(deck = d6)
     expect_equal(do6$opportunities, expected = c(0, 0, 0, 1))
-    expect_equal(do6$cost, expected = c("U", "rgrg", "R", "R"))
+    expect_equivalent(do6$costs, expected = list("U", c("rg", "rg"), "R", "R"))
 })
 
 test_that("check get_combinations", {
@@ -52,8 +52,8 @@ test_that("check get_combinations", {
         stringsAsFactors = FALSE)
     p2 <- curvefishing:::get_combinations(deck = d1)
     expect_equal(length(p2), expected = 4L)
-    expect_equal(p2[[1L]]$cost, expected = c("R", "R", "U"))
-    expect_equal(p2[[2L]]$cost, expected = c("R", "W", "U"))
+    expect_equivalent(p2[[1L]]$costs, expected = list("R", "R", "U"))
+    expect_equivalent(p2[[2L]]$costs, expected = list("R", "W", "U"))
     d3 <- data.frame(
         name = 1:9,
         cost = c("wr", "ur", "wu"),
@@ -67,8 +67,8 @@ test_that("check get_combinations", {
         stringsAsFactors = FALSE)
     p4 <- curvefishing:::get_combinations(deck = d3)
     expect_equal(length(p4), expected = 64L)
-    expect_equal(p4[[1L]]$cost,
-        expected = c("W", "U", "W", "W", "U", "W", "wr", "ur", "wu"))
+    expect_equivalent(p4[[1L]]$costs,
+        expected = list("W", "U", "W", "W", "U", "W", "wr", "ur", "wu"))
     # search for R or W basic that is in deck
     d5 <- data.frame(cost = c("rw", "R", "R", "R"),
         type = c("land", "spell", "spell", "land"),
@@ -101,7 +101,18 @@ test_that("check get_combinations", {
         mana_value = c(1, 2, 1, 1), is_search_basic = c(FALSE, FALSE, FALSE, FALSE),
         is_basic = c(FALSE, FALSE, TRUE, FALSE), stringsAsFactors = FALSE)
     p8 <- curvefishing:::get_combinations(deck = d8)
-    expect_equal(p8[[2]]$cost, expected = c("W", "rgrg", "R", "R"))
+    expect_equivalent(p8[[2]]$costs, expected = list("W", c("rg", "rg"), "R", "R"))
+    # double multi-colour hybrid
+    d9 <- rbind(d8, list("land", "G", 2L, TRUE, FALSE, 1, FALSE, TRUE))
+    p9 <- curvefishing:::get_combinations(deck = d9)
+    expect_equal(length(p9), 16L)
+    expect_equivalent(p9[[6]]$costs, expected = list("W", c("R", "G"), "R", "R", "G"))
+    # double multi-colour hybrid plus cost
+    d10 <- rbind(d9, list(c("spell", "land"), c("1wrrg", "G"), c(NA, 3L),
+        c(TRUE, TRUE), c(FALSE, FALSE), c(3, 1), c(FALSE, FALSE), c(FALSE, TRUE)))
+    p10 <- curvefishing:::get_combinations(deck = d10)
+    expect_equal(length(p10), 64L)
+    expect_equivalent(p10[[6]]$costs, expected = list("W", c("R", "G"), "R", "R", "G", c("1", "W", "R"), "G"))
 })
 
 test_that("check get_searchable", {
@@ -125,11 +136,11 @@ test_that("check get_searchable", {
         is_basic = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
         stringsAsFactors = FALSE)
     d4 <- curvefishing:::get_searchable(deck = d3)
-    expect_equal(d4, list(c("W", "G"), "rw", "uw", c("rg", "rg"), character(0), character(0)))
+    expect_equivalent(d4, list(c("W", "G"), "rw", "uw", c("rg", "rg"), character(0), character(0)))
     # no searchable lands
     d5[5:6, 1] <- "B"
     d6 <- curvefishing:::get_searchable(deck = d5)
-    expect_equal(d6, list(character(0), "rw", "uw", c("rg", "rg"), character(0), character(0)))
+    expect_equivalent(d6, list(character(0), "rw", "uw", c("rg", "rg"), character(0), character(0)))
     # search land has been used
     d7 <- data.frame(cost = c("0", "wg", "rw", "uw", "rgrg", "W", "G"),
         type = c("land", "land",  "spell", "spell", "spell", "land", "land"),
@@ -140,7 +151,7 @@ test_that("check get_searchable", {
         is_basic = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
         stringsAsFactors = FALSE)
     d8 <- curvefishing:::get_searchable(deck = d7)
-    expect_equal(d8, list(character(0), "G", "rw", "uw", c("rg", "rg"), character(0), character(0)))
+    expect_equivalent(d8, list(character(0), "G", "rw", "uw", c("rg", "rg"), character(0), character(0)))
 })
 
 test_that("check get_opportunities", {

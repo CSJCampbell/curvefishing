@@ -1,7 +1,8 @@
 
 test_that("check shuffle_deck", {
     expect_error(shuffle_deck(data.frame()))
-    d1 <- data.frame(cost = "1", type = "land")
+    expect_error(shuffle_deck(data.frame(cost = "s", type = "land")))
+    d1 <- data.frame(cost = "1", type = "land", stringsAsFactors = FALSE)
     expect_equal(shuffle_deck(d1), d1)
     d1 <- data.frame(
         cost = c("1", "R", "W", "RW"),
@@ -26,6 +27,9 @@ test_that("check shuffle_deck", {
     set.seed(3676)
     d3 <- shuffle_deck(d2)
     expect_equivalent(d3[-1], d2[-1])
+    h1 <- c("Ironclaw Orcs", "Mountain", "Mountain", "Fireball")
+    d4 <- shuffle_deck(sligh, hand = h1)
+    expect_equal(d4$name[1:4], h1)
 })
 
 test_that("check is_deck", {
@@ -37,3 +41,12 @@ test_that("check is_decklist", {
     expect_equal(is_decklist(mtcars), FALSE)
     expect_equal(is_decklist(sligh), TRUE)
 })
+
+test_that("check pick_x_from_y", {
+    expect_equal(curvefishing:::pick_x_from_y(x = 1:2, y = 3:1), c(3, 2))
+    expect_equal(curvefishing:::pick_x_from_y(x = c(1, 1, 2), y = 3:1), c(3, 0, 2))
+    expect_equal(curvefishing:::pick_x_from_y(x = c(1, 1, 2, 1, 2), y = c(1, 3:1, 1:3)),
+        expected = c(1, 4, 3, 5, 6))
+    expect_equal(curvefishing:::pick_x_from_y(x = numeric(0), y = 3:1), numeric(0))
+})
+

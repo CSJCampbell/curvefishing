@@ -8,11 +8,15 @@
 #' nsim replicates, and counting the total number of opportunities for
 #' spells over multiple turns.
 #' @param decklist data frame with columns, "type", "cost",
-#' and optionally "number", describing deck to be analysed
+#' and optionally "number", "is_basic", "is_tapped", "is_search_basic" and "name",
+#' describing deck to be analysed
 #' @param turns number of turns to analyse, default 7
-#' @param play is the player playing first (skip first draw) or second (draw as usual), default TRUE
+#' @param play is the player playing first (skip first draw)
+#' or second (draw as usual), default TRUE
 #' @param handsize number of cards in starting hand, default 7
 #' @param nsim number of simulations to perform (default 100).
+#' @param hand character vector of cards from column name that make up the
+#' starting hand (handsize will be ignored), or NULL, the default.
 #' @return fish single numeric with bootstrap simulations as attribute 'fishing'
 #' @export
 #' @examples
@@ -20,18 +24,37 @@
 #' f1
 #' plot(f1)
 
-go_fish <- function(decklist, turns = 7L, play = TRUE, handsize = 7L, nsim = 100L) {
-    fishing <- numeric(length = nsim)
-    deck <- shuffle_deck(decklist)
-    deck$mana_value <- cost_to_mana_value(cost = deck$cost)
-    any_is_hybrid <- any(is_hybrid(deck$cost))
-    if (!any_is_hybrid) {
-        deck <- get_mana(deck = deck)
+go_fish <- function(decklist, turns = 7L, play = TRUE, handsize = 7L,
+    nsim = 100L, hand = NULL) {
+    if (!is.null(hand)) {
+        stopifnot(is.character(hand))
+        handsize <- length(hand)
     }
+    fishing <- numeric(length = nsim)
+    deck <- shuffle_deck(decklist, hand = hand)
+    deck$costs <- costs(deck$cost)
+    deck$hybrid_costs <- hybrid_costs(deck$costs)
+    deck$mana_value <- cost_to_mana_value(cost = deck$costs)
+    if (!"is_tapped" %in% colnames(deck)) {
+        deck$is_tapped <- FALSE
+    }
+    if (!"is_search_basic" %in% colnames(deck)) {
+        deck$is_search_basic <- FALSE
+    }
+    if (!"is_basic" %in% colnames(deck)) {
+        is_named_basic <- TRUE
+        if ("name" %in% colnames(deck)) {
+            is_named_basic <- deck$name %in% c("Plains", "Island", "Swamp", "Mountain", "Forest")
+        }
+        deck$is_basic <- deck$type == "land" &
+            deck$cost %in% c("W", "U", "B", "R", "G") &
+            !deck$is_tapped &
+            is_named_basic
+    }
+    deck <- get_mana(deck = deck)
     for (fsh in seq_along(fishing)) {
-        deck_f <- goldfish(deck = shuffle_deck(deck),
-            turns = turns, play = play, handsize = handsize,
-            ishybrid = any_is_hybrid)
+        deck_f <- goldfish(deck = shuffle_deck(deck, hand = hand),
+            turns = turns, play = play, handsize = handsize)
         fishing[fsh] <- sum(deck_f$opportunities, na.rm = TRUE)
     }
     fish(fishing, turns = turns)
@@ -86,8 +109,8 @@ mean.fish <- function(x, na.rm = TRUE, ...) {
 
 plot.fish <- function(x, xlab = "Probability", ylab = "Opportunities", ...) {
     fishing <- attr(x = x, which = "fishing")
-    plot(x = seq_along(fishing) / length(fishing),
-         y = sort(fishing), type = "s", xlab = xlab, ylab = ylab, ...)
+    plot(x = c(0, seq_along(fishing) / length(fishing), 1),
+         y = c(min(fishing), sort(fishing), max(fishing)), type = "s", xlab = xlab, ylab = ylab, ...)
     points(x = 0.5, y = c(x), ...)
     text(x = 0.5, y = c(x) * 0.8, labels = c(x), ...)
 }

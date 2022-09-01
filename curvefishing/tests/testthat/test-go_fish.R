@@ -23,4 +23,16 @@ test_that("check go_fish", {
         stringsAsFactors = FALSE)
     f4 <- go_fish(d3, nsim = 2)
     expect_equal(c(f4), 1)
+    d5 <- data.frame(cost = rep(c("11", "W", "U", "B", "R", "G"), times = 2),
+        name = letters[rep(1:6, times = 2)],
+        type = rep(c("spell", rep("land", 5)), times = 2), stringsAsFactors = FALSE)
+    f6 <- go_fish(d5, nsim = 2, hand = c("a", "a"))
+    expect_equal(c(f6), 0)
+    # be able to play each spell as you draw it
+    # T1 = 0, T2 = 1, T3 = 3, etc.
+    d7 <- data.frame(cost = "R",
+        name = letters[rep(1:2, each = 7)],
+        type = rep(c("spell", "land"), each = 7), stringsAsFactors = FALSE)
+    f8 <- go_fish(d7, nsim = 2, hand = rep("b", times = 7))
+    expect_equal(c(f8), 21)
 })
