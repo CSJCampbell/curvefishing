@@ -43,7 +43,8 @@ has_resource <- function(deck, resource) {
     if (!all(c("w", "u", "b", "r", "g") %in% colnames(deck))) {
         deck <- get_mana(deck = deck)
     }
-    has_each <- deck[, c("w", "u", "b", "r", "g")] <= matrix(resource, nrow = nrow(deck), ncol = 5, byrow = TRUE)
+    has_each <- as.matrix(deck[, c("w", "u", "b", "r", "g")]) <= matrix(resource,
+        nrow = nrow(deck), ncol = 5, byrow = TRUE)
     apply(X = has_each, MARGIN = 1L, FUN = all)
 }
 
